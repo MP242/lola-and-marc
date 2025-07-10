@@ -1,103 +1,159 @@
+"use client";
+
 import Image from "next/image";
+import { useState, useRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isEndDialogOpen, setIsEndDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    nom: "",
+    prenom: "",
+    presence: "",
+  });
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const handlePlayVideo = () => {
+    setIsModalOpen(false);
+    setIsVideoPlaying(true);
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+
+  const handleVideoEnd = () => {
+    setIsEndDialogOpen(true);
+  };
+
+  const handlePresenceClick = (response: string) => {
+    setFormData((prev) => ({ ...prev, presence: response }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = () => {
+    if (formData.nom && formData.prenom && formData.presence) {
+      console.log("Données du formulaire:", formData);
+      alert(
+        `Merci ${formData.prenom} ${formData.nom} ! Votre réponse "${formData.presence}" a été enregistrée.`
+      );
+      setIsEndDialogOpen(false);
+    } else {
+      alert("Veuillez remplir tous les champs");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      {/* Modale de bienvenue */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              Bienvenue !
+            </DialogTitle>
+            <DialogDescription>
+              Cliquez sur le bouton pour lancer la vidéo
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={handlePlayVideo}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
+            >
+              Lancer la vidéo
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de fin de vidéo */}
+      <Dialog open={isEndDialogOpen} onOpenChange={setIsEndDialogOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              Est-ce que vous venez au mariage ?
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Boutons Oui/Non */}
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => handlePresenceClick("oui")}
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  formData.presence === "oui"
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-green-100"
+                }`}
+              >
+                Oui
+              </button>
+              <button
+                onClick={() => handlePresenceClick("non")}
+                className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                  formData.presence === "non"
+                    ? "bg-red-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-red-100"
+                }`}
+              >
+                Non
+              </button>
+            </div>
+
+            {/* Champs nom et prénom */}
+            <div className="space-y-3">
+              <input
+                type="text"
+                name="prenom"
+                placeholder="Prénom"
+                value={formData.prenom}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                name="nom"
+                placeholder="Nom"
+                value={formData.nom}
+                onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
+            >
+              Envoyer
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contenu principal */}
+      <video
+        ref={videoRef}
+        src="/video.mp4"
+        onEnded={handleVideoEnd}
+        className={`transition-opacity duration-500 ${
+          isVideoPlaying ? "opacity-100" : "opacity-50"
+        }`}
+      />
     </div>
   );
 }
